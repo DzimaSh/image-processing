@@ -11,6 +11,7 @@ To optimize performance on embedded systems or hardware lacking floating-point u
 ## 2. The Lifting Scheme Architecture
 
 The Lifting Scheme is a method to construct biorthogonal wavelets by factorizing the wavelet filter bank into a sequence of prediction and update steps (primal and dual lifting steps). This structure provides several advantages over classical convolution-based DWT:
+
 1. **In-place computation:** Coefficients can be updated directly in the input array.
 2. **Computational efficiency:** Reduces the number of multiplications and additions by up to $50\%$.
 3. **Easy reversibility:** The inverse transform is structurally symmetric to the forward transform; reversing the steps and changing the signs of the coefficients restores the original signal.
@@ -110,6 +111,7 @@ $$\text{Product}_{\text{Q16\_rounded}} = (A_{\text{Q16}} \times B_{\text{Q16}} +
 ## 4. Boundary Extensions
 
 At boundaries (indices $n < 0$ or $n \ge \frac{N}{2}$), values are extended symmetrically to prevent artifacts and energy leakages:
+
 * **Left Boundary:** $x[-1] = x[1]$
 * **Right Boundary:** $x[M] = x[M-2]$ where $M = \frac{N}{2}$ is the boundary limit.
 
