@@ -1,12 +1,17 @@
-# Fixed-Point CDF 9/7 Wavelet Transform via Lifting Scheme
+# Advanced Image Processing & Wavelet Transforms
 
-[![Python Application CI](https://github.com/your-username/image_processing/actions/workflows/python-app.yml/badge.svg)](https://github.com/your-username/image_processing/actions/workflows/python-app.yml)
+[![Python Application CI](https://github.com/DzimaSh/image-processing/actions/workflows/python-app.yml/badge.svg)](https://github.com/DzimaSh/image-processing/actions/workflows/python-app.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11-green.svg)](https://www.python.org/)
 
-A highly optimized, production-ready Python implementation of the **Cohen-Daubechies-Feauveau (CDF) 9/7 Biorthogonal Wavelet Transform** using the **Lifting Scheme** mapped entirely to **Q16 Fixed-Point Arithmetic**.
+Welcome to the **Advanced Image Processing & Wavelet Transforms** university/research repository. This codebase is designed to host, test, and document professional, high-performance image processing modules. 
 
-This repository corresponds to **Lab 1** of the Image Processing university/research curriculum. It demonstrates mathematically exact, in-place wavelet decompositions designed for systems without floating-point units (FPUs) or embedded hardware acceleration.
+## 📚 Repository Lab Modules
+
+* **Lab 1: CDF 9/7 Wavelet Transform via Lifting Scheme using Q16 Fixed-Point Arithmetic**
+  A production-ready, NumPy-vectorized implementation of the **Cohen-Daubechies-Feauveau (CDF) 9/7 Biorthogonal Wavelet Transform** utilizing the Lifting Scheme, mapped entirely to **Q16 Fixed-Point Arithmetic** with rounded integer scaling.
+* **Lab 2: [Upcoming Module]**
+  The upcoming laboratory assignment implementation will be integrated directly into this repository structure.
 
 ---
 
@@ -96,7 +101,7 @@ For details on the specific lifting equations ($\alpha, \beta, \gamma, \delta$),
 
 ## 💻 Usage
 
-The CLI script `scripts/run_lab1.py` acts as the primary execution engine. 
+The CLI script `scripts/run_lab1.py` acts as the primary execution engine.
 
 ### 1. Run on a Synthetic Calibration Image (No file needed)
 
@@ -118,7 +123,8 @@ python scripts/run_lab1.py --image data/my_image.png
 python scripts/run_lab1.py --image data/my_image.png --levels 3
 ```
 
-### Output Files (Stored in `data/output/`):
+### Output Files (Stored in `data/output/`)
+
 * `reconstructed.png`: The fully reconstructed image from the wavelet coefficients.
 * `dwt_vis_level_N.png`: A stunning, grid-aligned subband visualization highlighting LL (approximation), LH (horizontal details), HL (vertical details), and HH (diagonal details) bands.
 
