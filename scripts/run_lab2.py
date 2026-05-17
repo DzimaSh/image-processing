@@ -100,11 +100,11 @@ def main() -> None:
             generate_synthetic_image(str(synthetic_path))
         input_path = str(synthetic_path)
 
-    print(f"\n========================================================")
-    print(f"Executing Lab 2: 2D Non-Separable Transform")
+    print("\n========================================================")
+    print("Executing Lab 2: 2D Non-Separable Transform")
     print(f"Algorithm Type: {args.transform.upper()}")
     print(f"Input Image:    {input_path}")
-    print(f"========================================================")
+    print("========================================================")
 
     # 1. Load image
     try:
@@ -164,13 +164,13 @@ def main() -> None:
     psnr = calculate_psnr(orig_img, recon_img)
 
     print(f"\nReconstruction Analysis Summary ({args.transform.upper()}):")
-    print(f"----------------------------------------")
+    print("----------------------------------------")
     print(f"Mean Squared Error (MSE):       {mse:.6f}")
     if np.isinf(psnr):
-        print(f"Peak Signal-to-Noise Ratio:     Infinite dB (Perfect Reconstruction)")
+        print("Peak Signal-to-Noise Ratio:     Infinite dB (Perfect Reconstruction)")
     else:
         print(f"Peak Signal-to-Noise Ratio:     {psnr:.3f} dB")
-    print(f"----------------------------------------")
+    print("----------------------------------------")
     print("Execution completed successfully!\n")
 
 

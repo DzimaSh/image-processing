@@ -95,10 +95,10 @@ def main() -> None:
             generate_synthetic_image(str(synthetic_path))
         input_path = str(synthetic_path)
 
-    print(f"\n========================================================")
+    print("\n========================================================")
     print(f"Executing CDF 9/7 Fixed-Point DWT (Levels: {args.levels})")
     print(f"Input Image: {input_path}")
-    print(f"========================================================")
+    print("========================================================")
 
     # 1. Load image
     try:
@@ -152,14 +152,14 @@ def main() -> None:
     mse = calculate_mse(orig_img, recon_img)
     psnr = calculate_psnr(orig_img, recon_img)
 
-    print(f"\nReconstruction Analysis Summary:")
-    print(f"----------------------------------------")
+    print("\nReconstruction Analysis Summary:")
+    print("----------------------------------------")
     print(f"Mean Squared Error (MSE):       {mse:.6f}")
     if np.isinf(psnr):
-        print(f"Peak Signal-to-Noise Ratio:     Infinite dB (Perfect Reconstruction)")
+        print("Peak Signal-to-Noise Ratio:     Infinite dB (Perfect Reconstruction)")
     else:
         print(f"Peak Signal-to-Noise Ratio:     {psnr:.3f} dB")
-    print(f"----------------------------------------")
+    print("----------------------------------------")
     print("Execution completed successfully!\n")
 
 

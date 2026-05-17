@@ -8,7 +8,6 @@ Both transforms are implemented using Q16 fixed-point arithmetic for speed,
 numerical precision, and perfect reversibility.
 """
 
-from typing import Tuple
 import numpy as np
 
 # Q16 Fixed-Point Scale Constants (Scaling factor S = 2^16 = 65536)

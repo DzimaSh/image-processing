@@ -60,7 +60,6 @@ def fwd_dwt_1d(signal: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     if n % 2 != 0:
         raise ValueError("Signal length must be even.")
 
-    m = n // 2
     # Split into even and odd components (in-place copying)
     s = signal[0::2].copy().astype(np.int64)
     d = signal[1::2].copy().astype(np.int64)
