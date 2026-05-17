@@ -1,7 +1,7 @@
 # Fixed-Point CDF 9/7 Wavelet Transform via Lifting Scheme
 
 [![Python Application CI](https://github.com/your-username/image_processing/actions/workflows/python-app.yml/badge.svg)](https://github.com/your-username/image_processing/actions/workflows/python-app.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md)
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11-green.svg)](https://www.python.org/)
 
 A highly optimized, production-ready Python implementation of the **Cohen-Daubechies-Feauveau (CDF) 9/7 Biorthogonal Wavelet Transform** using the **Lifting Scheme** mapped entirely to **Q16 Fixed-Point Arithmetic**.
@@ -54,7 +54,7 @@ project-root/
 ├── .gitignore                  # Robust ignore definitions (excludes binary docx/pdfs)
 ├── requirements.txt            # Python dependencies (NumPy, OpenCV, Pytest, Ruff)
 ├── README.md                   # Repository documentation
-└── LICENSE                     # MIT License
+└── LICENSE.md                  # MIT License
 ```
 
 ---
@@ -135,4 +135,4 @@ All tests are verified and checked automatically via GitHub Actions upon push an
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
