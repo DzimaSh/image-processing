@@ -1,4 +1,4 @@
-MIT License
+# MIT License
 
 Copyright (c) 2026 The Image Processing DWT Project Contributors
 
