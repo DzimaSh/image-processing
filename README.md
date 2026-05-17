@@ -70,12 +70,14 @@ For details on the specific lifting equations ($\alpha, \beta, \gamma, \delta$),
 ## 🛠️ Installation & Setup
 
 1. **Clone the Repository:**
+
    ```bash
    git clone https://github.com/your-username/image_processing.git
    cd image_processing
    ```
 
 2. **Create a Virtual Environment (Optional but recommended):**
+
    ```bash
    python -m venv .venv
    # On Windows
@@ -85,6 +87,7 @@ For details on the specific lifting equations ($\alpha, \beta, \gamma, \delta$),
    ```
 
 3. **Install Dependencies:**
+
    ```bash
    pip install -r requirements.txt
    ```
@@ -97,16 +100,19 @@ The CLI script `scripts/run_lab1.py` acts as the primary execution engine.
 
 ### 1. Run on a Synthetic Calibration Image (No file needed)
 If you run the script without any arguments, it will automatically generate a custom high-frequency checkerboard calibration image in `data/sample_synthetic.png` and run the entire pipeline:
+
 ```bash
 python scripts/run_lab1.py
 ```
 
 ### 2. Run on Your Own Grayscale/Color Image
+
 ```bash
 python scripts/run_lab1.py --image data/my_image.png
 ```
 
 ### 3. Run with Multi-Level Wavelet Decomposition (e.g., 3 levels)
+
 ```bash
 python scripts/run_lab1.py --image data/my_image.png --levels 3
 ```
