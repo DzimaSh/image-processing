@@ -66,7 +66,7 @@ $$h_a = \frac{q_3(q_1 - 1) + q_4 q_2}{q_3^2 + q_4^2}, \quad h_b = \frac{q_4(q_1 
 
 Let $\mathbf{v}_A = \begin{bmatrix} x_{ee} \\ x_{eo} \end{bmatrix}$ and $\mathbf{v}_B = \begin{bmatrix} x_{oe} \\ x_{oo} \end{bmatrix}$.
 
-#### Forward Transform Steps:
+#### Forward Transform Steps
 
 1. **Predict-like Block ($\mathbf{V}$):**
    $$\mathbf{v}_A \leftarrow \mathbf{v}_A + \text{round}(\mathbf{H}(Q) \cdot \mathbf{v}_B)$$
@@ -75,7 +75,7 @@ Let $\mathbf{v}_A = \begin{bmatrix} x_{ee} \\ x_{eo} \end{bmatrix}$ and $\mathbf
 3. **Predict-like Block ($\mathbf{U}$):**
    $$\mathbf{v}_A \leftarrow \mathbf{v}_A + \text{round}(\mathbf{F}(Q) \cdot \mathbf{v}_B)$$
 
-#### Inverse Transform Steps:
+#### Inverse Transform Steps
 
 1. **Inverse $\mathbf{U}$:**
    $$\mathbf{v}_A \leftarrow \mathbf{v}_A - \text{round}(\mathbf{F}(Q) \cdot \mathbf{v}_B)$$
