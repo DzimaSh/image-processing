@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""CLI Script to execute Lab 1: CDF 9/7 Wavelet Transform using Fixed-Point Lifting.
+"""CLI Script to execute Lab 2: 2D Non-Separable Wavelet Transforms.
 
-Loads a grayscale image, performs the forward and inverse transforms,
-displays the MSE and PSNR, and saves both the reconstructed image and
-the DWT coefficient visualization to data/output/.
+Loads an image, applies either the Reversible Quaternionic Paraunitary Filter Bank
+or the 2D Non-Separable CDF 9/7 DWT, performs reconstruction, calculates metrics,
+and saves result visualizations.
 """
 
 import argparse
@@ -12,11 +12,16 @@ import sys
 from pathlib import Path
 import numpy as np
 
-# Ensure the project root is in the Python search path to resolve 'src' imports
+# Ensure project root is in Python search path
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
-from src.lab1.lifting_scheme import fwd_dwt_2d, inv_dwt_2d
+from src.lab2 import (
+    fwd_quaternionic_lifting_2d,
+    inv_quaternionic_lifting_2d,
+    fwd_non_separable_cdf97_2d,
+    inv_non_separable_cdf97_2d,
+)
 from src.shared.metrics import calculate_mse, calculate_psnr
 from src.shared.image_io import (
     load_image_grayscale,
@@ -47,7 +52,6 @@ def generate_synthetic_image(path: str) -> None:
     center = size // 2
     r_sq = (x - center) ** 2 + (y - center) ** 2
     circle_mask = r_sq < (80 ** 2)
-    # Overwrite center with smooth radial gradient
     img[circle_mask] = (np.cos(np.sqrt(r_sq[circle_mask]) / 10.0) * 127.0 + 128.0).astype(np.uint8)
 
     # 3. Add diagonal sharp line detail
@@ -62,7 +66,7 @@ def generate_synthetic_image(path: str) -> None:
 def main() -> None:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="CDF 9/7 Wavelet Transform via Fixed-Point Lifting Scheme (Lab 1)"
+        description="2D Non-Separable Wavelet Transforms & Paraunitary Filter Banks (Lab 2)"
     )
     parser.add_argument(
         "--image",
@@ -70,10 +74,11 @@ def main() -> None:
         help="Path to the input image. If omitted, a synthetic image is generated.",
     )
     parser.add_argument(
-        "--levels",
-        type=int,
-        default=1,
-        help="Number of multi-level decomposition iterations (default: 1).",
+        "--transform",
+        type=str,
+        choices=["quaternionic", "non-separable-cdf"],
+        default="quaternionic",
+        help="Type of 2D non-separable transform to execute (default: quaternionic).",
     )
     parser.add_argument(
         "--out-dir",
@@ -96,8 +101,9 @@ def main() -> None:
         input_path = str(synthetic_path)
 
     print(f"\n========================================================")
-    print(f"Executing CDF 9/7 Fixed-Point DWT (Levels: {args.levels})")
-    print(f"Input Image: {input_path}")
+    print(f"Executing Lab 2: 2D Non-Separable Transform")
+    print(f"Algorithm Type: {args.transform.upper()}")
+    print(f"Input Image:    {input_path}")
     print(f"========================================================")
 
     # 1. Load image
@@ -109,38 +115,43 @@ def main() -> None:
 
     print(f"Original image shape: {orig_img.shape} (Grayscale)")
 
-    # Adjust image dimensions to be divisible by 2^levels if needed
+    # Assert dimensions are even (2D decomposition requirement)
     h, w = orig_img.shape
-    divisor = 2 ** args.levels
-    if h % divisor != 0 or w % divisor != 0:
-        new_h = (h // divisor) * divisor
-        new_w = (w // divisor) * divisor
+    if h % 2 != 0 or w % 2 != 0:
+        new_h = (h // 2) * 2
+        new_w = (w // 2) * 2
         print(
-            f"[Warning] Image size {h}x{w} not divisible by 2^{args.levels}. "
+            f"[Warning] Image size {h}x{w} is not even. "
             f"Cropping image to {new_h}x{new_w}."
         )
         orig_img = orig_img[:new_h, :new_w]
 
-    # 2. Perform Forward Wavelet Transform (Q16 Fixed-Point)
-    print("\n[Step 1] Performing forward 2D DWT...")
-    coeffs = fwd_dwt_2d(orig_img, levels=args.levels)
+    # 2. Perform Forward Wavelet Transform
+    print("\n[Step 1] Performing forward transform...")
+    if args.transform == "quaternionic":
+        coeffs = fwd_quaternionic_lifting_2d(orig_img)
+    else:
+        coeffs = fwd_non_separable_cdf97_2d(orig_img)
 
     # 3. Create Wavelet Coefficient Visualization
-    print("[Step 2] Creating wavelet sub-band visualization...")
-    vis_img = create_dwt_visualization(coeffs, levels=args.levels)
-    vis_path = os.path.join(args.out_dir, f"dwt_vis_level_{args.levels}.png")
+    print("[Step 2] Creating transform coefficient visualization...")
+    vis_img = create_dwt_visualization(coeffs, levels=1)
+    vis_path = os.path.join(args.out_dir, f"lab2_vis_{args.transform}.png")
     try:
         save_image(vis_path, vis_img)
         print(f" -> Saved DWT visualization to: {vis_path}")
     except Exception as e:
-        print(f"[Error] Failed to save DWT visualization: {e}")
+        print(f"[Error] Failed to save transform visualization: {e}")
 
-    # 4. Perform Inverse Wavelet Transform
-    print("[Step 3] Performing inverse 2D DWT...")
-    recon_img = inv_dwt_2d(coeffs, levels=args.levels)
+    # 4. Perform Inverse Transform
+    print("[Step 3] Performing inverse transform...")
+    if args.transform == "quaternionic":
+        recon_img = inv_quaternionic_lifting_2d(coeffs)
+    else:
+        recon_img = inv_non_separable_cdf97_2d(coeffs)
 
     # 5. Save Reconstructed Image
-    recon_path = os.path.join(args.out_dir, "reconstructed.png")
+    recon_path = os.path.join(args.out_dir, f"lab2_recon_{args.transform}.png")
     try:
         save_image(recon_path, recon_img)
         print(f" -> Saved reconstructed image to: {recon_path}")
@@ -152,7 +163,7 @@ def main() -> None:
     mse = calculate_mse(orig_img, recon_img)
     psnr = calculate_psnr(orig_img, recon_img)
 
-    print(f"\nReconstruction Analysis Summary:")
+    print(f"\nReconstruction Analysis Summary ({args.transform.upper()}):")
     print(f"----------------------------------------")
     print(f"Mean Squared Error (MSE):       {mse:.6f}")
     if np.isinf(psnr):

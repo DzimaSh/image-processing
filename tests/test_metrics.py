@@ -2,7 +2,7 @@
 
 import numpy as np
 import pytest
-from src.core.metrics import calculate_mse, calculate_psnr
+from src.shared.metrics import calculate_mse, calculate_psnr
 
 
 def test_calculate_mse_identical() -> None:

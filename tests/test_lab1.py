@@ -2,14 +2,14 @@
 
 import numpy as np
 import pytest
-from src.core.lifting_scheme import (
+from src.lab1.lifting_scheme import (
     fwd_dwt_1d,
     inv_dwt_1d,
     fwd_dwt_2d,
     inv_dwt_2d,
     SCALE_FACTOR,
 )
-from src.core.metrics import calculate_psnr
+from src.shared.metrics import calculate_psnr
 
 
 def test_dwt_1d_reversibility() -> None:
