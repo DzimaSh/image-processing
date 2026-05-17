@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-Wavelet transforms are powerful tools for multiresolution signal analysis, widely used in image compression standards such as JPEG 2000. This document specifies the implementation of a **1D and 2D Discrete Wavelet Transform (DWT)** and **Inverse Discrete Wavelet Transform (IDWT)** using the biorthogonal **Cohen-Daubechies-Feauveau (CDF) 9/7 filter bank**. 
+Wavelet transforms are powerful tools for multiresolution signal analysis, widely used in image compression standards such as JPEG 2000. This document specifies the implementation of a **1D and 2D Discrete Wavelet Transform (DWT)** and **Inverse Discrete Wavelet Transform (IDWT)** using the biorthogonal **Cohen-Daubechies-Feauveau (CDF) 9/7 filter bank**.
 
 To optimize performance on embedded systems or hardware lacking floating-point units (FPUs), the entire algorithm is implemented using **Fixed-Point Arithmetic** under a **Lifting Scheme** architecture.
 
@@ -43,7 +43,8 @@ The forward lifting scheme progresses through four sequential phases followed by
    $$d[n] = \frac{1}{K} \cdot d^{[2]}[n]$$
    *Final normalization step to obtain the low-frequency approximation $s$ and high-frequency details $d$.*
 
-#### Floating-Point Lifting Coefficients:
+#### Floating-Point Lifting Coefficients
+
 $$\begin{aligned}
 \alpha &\approx -1.586134342059924 \\
 \beta &\approx -0.052980118572961 \\
@@ -82,7 +83,7 @@ Reconstruction is achieved by reversing the operations of the forward transform 
 
 ## 3. Fixed-Point Arithmetic Design (Q16 Format)
 
-To achieve fixed-point representation, we scale real values by a factor of $2^{16} = 65536$ (known as Q16 format, or $Q_{15.16}$ for signed 32-bit integers). 
+To achieve fixed-point representation, we scale real values by a factor of $2^{16} = 65536$ (known as Q16 format, or $Q_{15.16}$ for signed 32-bit integers).
 
 ### 3.1 Scaling Lifting Coefficients
 
