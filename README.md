@@ -1,3 +1,7 @@
+*Read this in other languages: [English](README.md), [Беларуская](README.be.md).*
+
+---
+
 # Advanced Image Processing & Wavelet Transforms
 
 [![Python Application CI](https://github.com/DzimaSh/image-processing/actions/workflows/python-app.yml/badge.svg)](https://github.com/DzimaSh/image-processing/actions/workflows/python-app.yml)

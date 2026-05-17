@@ -1,3 +1,7 @@
+*Read this in other languages: [English](lab2_specification.md), [Беларуская](lab2_specification.be.md).*
+
+---
+
 # Lab 2 Technical Specification: 2D Non-Separable Wavelet Transforms
 
 ## 1. Introduction

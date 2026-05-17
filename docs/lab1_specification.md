@@ -1,3 +1,7 @@
+*Read this in other languages: [English](lab1_specification.md), [Беларуская](lab1_specification.be.md).*
+
+---
+
 # Lab 1 Technical Specification: CDF 9/7 DWT via Fixed-Point Lifting Scheme
 
 ## 1. Introduction
