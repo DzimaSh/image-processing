@@ -99,6 +99,7 @@ For details on the specific lifting equations ($\alpha, \beta, \gamma, \delta$),
 The CLI script `scripts/run_lab1.py` acts as the primary execution engine. 
 
 ### 1. Run on a Synthetic Calibration Image (No file needed)
+
 If you run the script without any arguments, it will automatically generate a custom high-frequency checkerboard calibration image in `data/sample_synthetic.png` and run the entire pipeline:
 
 ```bash
