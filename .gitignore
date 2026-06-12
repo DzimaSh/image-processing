@@ -121,3 +121,7 @@ data/output/*
 # Operating system files
 .DS_Store
 Thumbs.db
+
+# Scratch and tool-generated files
+scratch/
+l2l_hls_project/
