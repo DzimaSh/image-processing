@@ -2,105 +2,132 @@
 
 ---
 
-# Lab 3 Technical Specification: Lossless-to-Lossy (L2L) Block-Ladder Image Compression
+# Technical Specification: Lossless-to-Lossy (L2L) Block-Ladder Image Compression
 
-## 1. Introduction
+## 1. Theoretical Background
 
-Traditional image compression systems (like JPEG) are inherently lossy because they apply quantization to DCT coefficients, which discards high-frequency information and introduces irreversible errors. To achieve lossless reconstruction, separate systems must be used, which typically have lower compression ratios.
+### 1.1 Lossless-to-Lossy (L2L) Framework
+Traditional image coding systems separate lossy compression (e.g., JPEG, which uses DCT with quantization) and lossless compression (e.g., JPEG-LS, PNG, which use predictive schemes). 
+The Lossless-to-Lossy (L2L) framework unified under a single structural parametrization allows progressive decoding from lossy representation up to bit-true (perfect) reconstruction from the same compressed bitstream.
 
-This laboratory work implements a **Lossless-to-Lossy (L2L) Image Compression System** based on the **block-ladder (lifting) structural parametrization** of the 2D DCT-IDCT block transforms. The L2L framework combines lossy and lossless modes in a single unified processing pipeline:
+### 1.2 First-Order Regularity & DC Leakage (Checkerboard Effect)
+The checkerboard pattern (grid artifact) is a well-known distortion in block-based transform systems working in lossy modes. 
 
-1.  **Lossy Mode (Without SIB):** Compresses the image using standard block-based transformations. However, due to the presence of constant frequency leakage (DC-leakage or *DC leakages*) in the inverse DCT filters (i.e. loss of first-order regularity in all subband channels except the first), the reconstructed image displays a characteristic **checkerboard grid artifact** (chess pattern).
-2.  **Lossless Mode (With SIB):** By capturing the cumulative rounding and quantization errors in an iterative state chain, we generate a final state block called the **Side Information Block (SIB)**. Transmitting this single block ($s_K$) as side metadata enables the decoder to perfectly reverse all intermediate rounding stages, yielding **perfect (lossless) reconstruction** (PSNR = $\infty$ dB, MSE = 0) with negligible data overhead.
+A filter bank (or transform kernel) satisfies the **first-order regularity condition** if the frequency responses of all subband channels, except the first (DC) channel, have a zero at zero frequency:
+$$H_k(\omega)\Big|_{\omega=0} = 0 \quad \text{for } k = 1, 2, \dots, M-1$$
+
+In standard 2D DCT-IDCT block transforms:
+*   The forward DCT matrix $\mathbf{C}$ concentrates the block's average energy into the DC coefficient $y[0,0]$.
+*   The synthesis filters (columns of the IDCT matrix $\mathbf{D}$) are orthogonal and represent AC frequencies that integrate to zero.
+
+However, when implementing these transforms in **finite-precision arithmetic** (fixed-point) inside a block-ladder lifting structure, rounding errors are introduced at each lifting step. Because the rounding operations are non-linear, they generate rounding noise. This noise contains a constant (DC) component that leaks into the AC subbands. 
+
+Because the subband filters lose their first-order regularity in this parametrical ladder representation, this leaked DC energy manifests as a structured **checkerboard grid artifact** (chess pattern) in the spatial domain when the decoder reconstructs the image.
+
+### 1.3 Side Information Block (SIB) Stabilization
+To eliminate this leakage and achieve perfect reconstruction, a **Side Information Block (SIB)** is employed. 
+
+The forward encoder chains the $8 \times 8$ image blocks in a 1D sequence. The rounding errors from each block $n$ are accumulated in the state block $s_n$:
+$$s_n = u_2 + \text{round}\left( D_{2D}(y_n) - y_n \right)$$
+where $s_{-1} = \mathbf{0}$.
+
+At the end of the image (after $K$ blocks), the final state block $s_K$ (the SIB) contains the accumulated error history. 
+*   In **Lossless Mode**, this single block $s_K$ is transmitted. The decoder uses it to run the state chain backward. This reverses every rounding step exactly, recovering the original pixels bit-for-bit (PSNR = $\infty$ dB, MSE = 0).
+*   In **Lossy Mode**, the SIB is omitted ($s_K = \mathbf{0}$). This results in normal lossy reconstruction displaying the checkerboard pattern, allowing comparative quality assessments.
 
 ---
 
-## 2. Block-Ladder Parametrization (Lifting Scheme)
+## 2. Mathematical Formulation
 
-The L2L compression system represents the 2D DCT ($C_{2D}$) and 2D IDCT ($D_{2D}$) transforms through a 4-stage block-lifting structure. The image is decomposed into non-overlapping $M \times M$ blocks (here, $M=8$) in raster order.
+Let the 2D DCT and 2D IDCT operations be:
+*   $C_{2D}(X) = \mathbf{C} \cdot X \cdot \mathbf{C}^T$
+*   $D_{2D}(X) = \mathbf{D} \cdot X \cdot \mathbf{D}^T$ (where $\mathbf{D} = \mathbf{C}^T$)
 
-Let:
-*   $x_n$ be the $n$-th input spatial block.
-*   $y_n$ be the $n$-th output transform coefficient block.
-*   $s_n$ be the state block after processing block $n$ (with $s_{-1} = \mathbf{0}$).
-
-The 2D block transforms are defined as:
-*   $C_{2D}(X) = \mathbf{C} \cdot X \cdot \mathbf{C}^T$ (Forward 2D DCT)
-*   $D_{2D}(X) = \mathbf{D} \cdot X \cdot \mathbf{D}^T$ (Inverse 2D IDCT, where $\mathbf{D} = \mathbf{C}^T$)
-
-### 2.1 Forward Transform Steps (Encoder)
-
+### 2.1 Forward block-ladder steps (Encoder)
 For each block $n = 0, 1, \dots, K-1$:
+1.  $$u_1 = x_n - \text{round}\left( D_{2D}(s_{n-1}) \right)$$
+2.  $$u_2 = s_{n-1} + \text{round}\left( C_{2D}(u_1) - u_1 \right)$$
+3.  $$y_n = u_1 + u_2$$
+4.  $$s_n = u_2 + \text{round}\left( D_{2D}(y_n) - y_n \right)$$
 
-1.  **Stage 1:**
-    $$u_1 = x_n - \text{round}\left( D_{2D}(s_{n-1}) \right)$$
-2.  **Stage 2:**
-    $$u_2 = s_{n-1} + \text{round}\left( C_{2D}(u_1) - u_1 \right)$$
-3.  **Stage 3:**
-    $$y_n = u_1 + u_2$$
-4.  **Stage 4 (State Update):**
-    $$s_n = u_2 + \text{round}\left( D_{2D}(y_n) - y_n \right)$$
-
-### 2.2 Inverse Transform Steps (Decoder)
-
-To decode, the state chain is evaluated backwards from $n = K-1$ down to $0$:
-
-1.  **Inverse Stage 4:**
-    $$u_2 = s_n - \text{round}\left( D_{2D}(y_n) - y_n \right)$$
-2.  **Inverse Stage 3:**
-    $$u_1 = y_n - u_2$$
-3.  **Inverse Stage 2:**
-    $$s_{n-1} = u_2 - \text{round}\left( C_{2D}(u_1) - u_1 \right)$$
-4.  **Inverse Stage 1:**
-    $$x_n = u_1 + \text{round}\left( D_{2D}(s_{n-1}) \right)$$
-
-> [!IMPORTANT]
-> *   In **Lossless Mode**, the decoder initializes the backward state chain with $s_{K-1} = s_K - \text{round}(D_{2D}(y_{K-1}) - y_{K-1})$, where $s_K$ is the transmitted SIB.
-> *   In **Lossy Mode**, the SIB is ignored and the final state is initialized to zero ($s_K = \mathbf{0}$).
+### 2.2 Inverse block-ladder steps (Decoder)
+For each block $n = K-1, \dots, 0$:
+1.  $$u_2 = s_n - \text{round}\left( D_{2D}(y_n) - y_n \right)$$
+2.  $$u_1 = y_n - u_2$$
+3.  $$s_{n-1} = u_2 - \text{round}\left( C_{2D}(u_1) - u_1 \right)$$
+4.  $$x_n = u_1 + \text{round}\left( D_{2D}(s_{n-1}) \right)$$
 
 ---
 
-## 3. Fixed-Point Arithmetic Specification
+## 3. Fixed-Point Specification
 
-To ensure exact reproducibility between the software model and hardware implementation, the arithmetic uses **12-bit fixed-point representation (Q1.10 format)**:
-
-*   **Total Word Length:** 12 bits.
-*   **Integer Parts:** 2 bits (1 sign bit, 1 integer bit).
-*   **Fractional Parts:** 10 bits.
-*   **Dynamic Range:** $[-2.0, 2.0)$ with a step size of $2^{-10} \approx 0.00097656$.
-*   **Quantization Mode:** Convergent Rounding (Round-to-nearest-even / `AP_RND_CONV`).
+To match the hardware exactly, the software modeling and synthesizable hardware use **12-bit fixed-point arithmetic (Q1.10 format)**:
+*   **Word Length:** 12 bits (1 sign bit, 1 integer bit, 10 fractional bits).
+*   **Rounding Mode:** Convergent Rounding (Round-to-nearest-even / `AP_RND_CONV`).
 *   **Overflow Mode:** Truncation (`AP_TRN`).
-
-To prevent intermediate overflows during matrix multiplications, intermediate accumulations are performed using a **32-bit wider accumulator** before casting back to the 12-bit `coeff_t` format.
+*   **Accumulator:** 32-bit wider variables are used during matrix multiplication summation to prevent intermediate overflow.
 
 ---
 
-## 4. Hardware Architecture Design (Vivado HLS)
+## 4. How to Launch the Application
 
-The hardware accelerator is implemented in synthesizable C++ Vivado HLS. The pipeline consists of the following core functional modules:
+### 4.1 Python Algorithmic Model
+The Python implementation includes a CLI runner and a unit test suite.
 
-### 4.1 Interface Signals
-The top-level synthesizable IP core [fwd_ladder_step_hls](file:///d:/Labs/master/image_processing/hardware/src/l2l_transform.cpp#L94) processes one block step:
-*   `x_n`: Input spatial block array ($8 \times 8$).
-*   `s_prev`: State input block array ($8 \times 8$).
-*   `y_n`: Output transform coefficient block array ($8 \times 8$).
-*   `s_n`: State output block array ($8 \times 8$).
+#### Prerequisites
+Ensure the virtual environment is active and dependencies are installed:
+```bash
+pip install -r requirements.txt
+```
 
-### 4.2 HLS Optimization Pragmas
-To achieve maximum performance and latency minimization, the following pragmas are applied:
+#### Run CLI Evaluation
+The CLI script runs the L2L system on a grayscale image, compares Lossless (with SIB) vs Lossy (without SIB) modes, prints quality metrics, and saves the output images in `data/output/`.
 
-1.  **Array Partitioning:**
-    ```cpp
-    #pragma HLS ARRAY_PARTITION variable=in complete dim=1
+1.  **Run with standard matrix DCT on synthetic calibration image:**
+    ```bash
+    python scripts/run_lab3.py
     ```
-    This splits the block matrices along row dimensions, allowing parallel row read/write in a single clock cycle.
-2.  **Loop Unrolling:**
-    ```cpp
-    #pragma HLS UNROLL
+2.  **Run with standard matrix DCT on a custom image:**
+    ```bash
+    python scripts/run_lab3.py --image path/to/your_image.png
     ```
-    Applied to the matrix multiplication dot-products, creating parallel multiplier arrays.
-3.  **Pipelining:**
-    ```cpp
-    #pragma HLS PIPELINE II=1
+3.  **Run using the fast Loeffler DCT kernel:**
+    ```bash
+    python scripts/run_lab3.py --use-loeffler
     ```
-    Applied to the outer matrix multiplication loops to schedule iterations overlappingly with an Initiation Interval of 1.
+
+#### Run Unit Tests
+To verify transform invertibility and perfect reconstruction properties:
+```bash
+pytest tests/test_lab3.py -v
+```
+
+---
+
+### 4.2 AMD Vivado / Vitis HLS Hardware Design
+The hardware architecture is verified via a C-simulation testbench using golden vectors.
+
+#### 1. Generate Testbench Vectors
+Run the generator script to create bit-accurate inputs/outputs (using scaled Q1.10 values to avoid `ap_fixed<12, 2>` overflow):
+```bash
+python scripts/generate_tb_vectors.py
+```
+This writes the vectors to [tb_vectors.txt](file:///d:/Labs/master/image_processing/hardware/src/tb_vectors.txt).
+
+#### 2. Execute HLS Synthesis & Verification
+Open the Vivado HLS Command Prompt (or Vitis HLS console) and run the Tcl script:
+```bash
+vivado_hls -f hardware/scripts/hls_script.tcl
+```
+or in Vitis HLS:
+```bash
+vitis_hls -f hardware/scripts/hls_script.tcl
+```
+
+This script will automatically:
+1.  Initialize the project `l2l_hls_project`.
+2.  Add synthesizable source files and testbenches.
+3.  **C Simulation (`csim_design`):** Compiles and runs the C++ testbench in [l2l_tb.cpp](file:///d:/Labs/master/image_processing/hardware/src/l2l_tb.cpp), verifying the design against Python golden vectors.
+4.  **C Synthesis (`csynth_design`):** Generates RTL Verilog/VHDL code and scheduling reports.
+5.  **C/RTL Co-Simulation (`cosim_design`):** Verifies the synthesized RTL block inside a simulator using the C++ testbench.
+6.  **Export IP (`export_design`):** Packages the synthesized block as a Vivado IP Core.
