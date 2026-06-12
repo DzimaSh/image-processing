@@ -7,7 +7,6 @@ evaluates the reconstruction fidelity (PSNR/MSE), and saves the results.
 
 import argparse
 import os
-import cv2
 import sys
 from pathlib import Path
 import numpy as np
